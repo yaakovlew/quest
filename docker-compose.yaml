@@ -1,0 +1,58 @@
+version: '3.8'
+
+networks:
+  new:
+
+services:
+  bot:
+    networks:
+      - new
+    build: .
+    restart: always
+    ports:
+      - 8000:8000
+    environment:
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_NAME=quest_catalog
+      - DB_SSL_MODE=disable
+    depends_on:
+      - migrate
+
+  db:
+    image: postgres:latest
+    restart: always
+    networks:
+      new:
+        aliases:
+          - database
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=quest_catalog
+    ports:
+      - 5432:5432
+    volumes:
+      - ./.database/postgres/data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate
+    networks:
+      - new
+    volumes:
+      - ./migrations:/migrations
+    command: [ "-path", "/migrations", "-database",  "postgres://postgres:postgres@database:5432/quest_catalog?sslmode=disable", "up", "3" ]
+    links:
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  db-data: { }
