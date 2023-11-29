@@ -2,7 +2,7 @@ package repo
 
 import (
 	"gorm.io/gorm"
-	"tg-bot/internal/pkg/models"
+	"quest/internal/models"
 )
 
 type User interface {

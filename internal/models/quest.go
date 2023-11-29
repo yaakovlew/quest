@@ -14,3 +14,16 @@ type RepoQuest struct {
 	location      string `db:"location"`
 	organizer     string `db:"organizer"`
 }
+
+
+type Quest struct {
+	Name          string `json:"name"`
+	Description   string `json:"description"`
+	AuthorComment string `json:"author_comment"`
+	Point         string `json:"point"`
+	AgeLevel      int    `json:"age_level"`
+	difficult     string `json:"difficult"`
+	duration      int    `json:"duration"`
+	location      string `json:"location"`
+	organizer     string `json:"organizer"`
+}
