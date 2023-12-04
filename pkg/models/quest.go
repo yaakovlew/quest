@@ -9,12 +9,11 @@ type RepoQuest struct {
 	AuthorComment string `db:"author_comment"`
 	Point         string `db:"point"`
 	AgeLevel      int    `db:"age"`
-	difficult     string `db:"difficult"`
-	duration      int    `db:"duration"`
-	location      string `db:"location"`
-	organizer     string `db:"organizer"`
+	Difficult     string `db:"difficult"`
+	Duration      int    `db:"duration"`
+	Location      string `db:"location"`
+	Organizer     string `db:"organizer"`
 }
-
 
 type Quest struct {
 	Name          string `json:"name"`
@@ -22,8 +21,8 @@ type Quest struct {
 	AuthorComment string `json:"author_comment"`
 	Point         string `json:"point"`
 	AgeLevel      int    `json:"age_level"`
-	difficult     string `json:"difficult"`
-	duration      int    `json:"duration"`
-	location      string `json:"location"`
-	organizer     string `json:"organizer"`
+	Difficult     string `json:"difficult"`
+	Duration      int    `json:"duration"`
+	Location      string `json:"location"`
+	Organizer     string `json:"organizer"`
 }

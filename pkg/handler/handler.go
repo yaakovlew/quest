@@ -2,7 +2,7 @@ package handler
 
 import (
 	"net/http"
-	"quest/internal/pkg/service"
+	"quest/pkg/service"
 )
 
 type Quest interface {
@@ -17,7 +17,7 @@ type Handler struct {
 	Quest
 }
 
-func NewHandler(service service.Service) *Handler {
+func NewHandler(service *service.Service) *Handler {
 	return &Handler{
 		Quest: NewQuestHandler(service),
 	}

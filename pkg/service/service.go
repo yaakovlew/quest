@@ -1,8 +1,8 @@
 package service
 
 import (
-	"quest/internal/models"
-	"quest/internal/pkg/repo"
+	"quest/pkg/models"
+	"quest/pkg/repo"
 )
 
 type User interface {
@@ -14,7 +14,7 @@ type User interface {
 
 type Quest interface {
 	CreateQuest(quest models.Quest) (int, error)
-	UpdateQuest(quest models.Quest) (models.RepoQuest, error)
+	UpdateQuest(id int, quest models.Quest) (models.Quest, error)
 	DeleteQuest(id int) (int, error)
 	GetQuest(questId int) (models.Quest, error)
 	GetQuestsByPage(page int) ([]models.Quest, error)
@@ -27,7 +27,7 @@ type Service struct {
 	Quest
 }
 
-func NewService(repo repo.Repository) *Service {
+func NewService(repo *repo.Repository) *Service {
 	return &Service{
 		User:  NewUserService(repo.User),
 		Quest: NewQuestService(repo.Quest),

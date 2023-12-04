@@ -1,8 +1,8 @@
 package service
 
 import (
-	"quest/internal/models"
-	"quest/internal/pkg/repo"
+	"quest/pkg/models"
+	"quest/pkg/repo"
 )
 
 type QuestService struct {
@@ -21,15 +21,20 @@ func (s *QuestService) CreateQuest(quest models.Quest) (int, error) {
 	return s.repo.CreateQuest(repoQuest)
 }
 
-func (s *QuestService) UpdateQuest(quest models.Quest) (models.RepoQuest, error) {
+func (s *QuestService) UpdateQuest(id int, quest models.Quest) (models.Quest, error) {
 	repoQuest := s.questToRepoQuest(quest)
 
-	return s.repo.UpdateQuest(repoQuest)
+	repoQuest, err := s.repo.UpdateQuest(id, repoQuest)
+	if err != nil {
+		return models.Quest{}, err
+	}
+
+	return s.repoQuestToQuest(repoQuest), nil
 }
 
 func (s *QuestService) DeleteQuest(id int) (int, error) {
 	repoQuest, err := s.repo.GetQuest(id)
-	if err != nil{
+	if err != nil {
 		return 0, err
 	}
 
@@ -66,6 +71,10 @@ func (s *QuestService) repoQuestToQuest(quest models.RepoQuest) models.Quest {
 		AuthorComment: quest.AuthorComment,
 		Point:         quest.Point,
 		AgeLevel:      quest.AgeLevel,
+		Difficult:     quest.Difficult,
+		Duration:      quest.Duration,
+		Location:      quest.Location,
+		Organizer:     quest.Organizer,
 	}
 }
 
@@ -76,5 +85,9 @@ func (s *QuestService) questToRepoQuest(quest models.Quest) models.RepoQuest {
 		AuthorComment: quest.AuthorComment,
 		Point:         quest.Point,
 		AgeLevel:      quest.AgeLevel,
+		Difficult:     quest.Difficult,
+		Duration:      quest.Duration,
+		Location:      quest.Location,
+		Organizer:     quest.Organizer,
 	}
 }

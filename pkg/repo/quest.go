@@ -2,7 +2,7 @@ package repo
 
 import (
 	"gorm.io/gorm"
-	"quest/internal/models"
+	"quest/pkg/models"
 )
 
 const limit = 3
@@ -18,15 +18,15 @@ func NewQuestRepo(db *gorm.DB) *QuestRepo {
 }
 
 func (r *QuestRepo) CreateQuest(quest models.RepoQuest) (int, error) {
-	if err := r.db.Create(quest).Error; err != nil {
+	if err := r.db.Create(&quest).Error; err != nil {
 		return 0, err
 	}
 
 	return int(quest.ID), nil
 }
 
-func (r *QuestRepo) UpdateQuest(quest models.RepoQuest) (models.RepoQuest, error) {
-	if err := r.db.Model(&models.RepoQuest{}).Where("id=?", quest.ID).Updates(&quest).Error; err != nil {
+func (r *QuestRepo) UpdateQuest(id int, quest models.RepoQuest) (models.RepoQuest, error) {
+	if err := r.db.Model(&models.RepoQuest{}).Where("id=?", id).Updates(&quest).Error; err != nil {
 		return models.RepoQuest{}, err
 	}
 

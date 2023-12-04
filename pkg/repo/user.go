@@ -2,7 +2,7 @@ package repo
 
 import (
 	"gorm.io/gorm"
-	"quest/internal/models"
+	"quest/pkg/models"
 )
 
 type UserRepo struct {

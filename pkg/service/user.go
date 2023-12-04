@@ -1,8 +1,8 @@
 package service
 
 import (
-	"quest/internal/models"
-	"quest/internal/pkg/repo"
+	"quest/pkg/models"
+	"quest/pkg/repo"
 )
 
 type UserService struct {

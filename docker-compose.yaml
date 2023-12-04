@@ -8,13 +8,32 @@ services:
     networks:
       - new
     build: .
+    command: ./bot
     restart: always
     ports:
       - 8000:8000
     environment:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
-      - DB_HOST=localhost
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_NAME=quest_catalog
+      - DB_SSL_MODE=disable
+    depends_on:
+      - migrate
+
+  rest:
+    networks:
+      - new
+    build: .
+    command: ./rest
+    restart: always
+    ports:
+      - 8000:8000
+    environment:
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=host.docker.internal
       - DB_PORT=5432
       - DB_NAME=quest_catalog
       - DB_SSL_MODE=disable
@@ -42,17 +61,5 @@ services:
       timeout: 3s
       retries: 5
 
-  migrate:
-    image: migrate/migrate
-    networks:
-      - new
-    volumes:
-      - ./migrations:/migrations
-    command: [ "-path", "/migrations", "-database",  "postgres://postgres:postgres@database:5432/quest_catalog?sslmode=disable", "up", "3" ]
-    links:
-      - db
-    depends_on:
-      db:
-        condition: service_healthy
 volumes:
   db-data: { }
