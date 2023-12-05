@@ -8,6 +8,7 @@ func (h *Handler) InitRoutes() *mux.Router {
 
 	r := mux.NewRouter()
 	questRouter := r.PathPrefix("/quest").Subrouter()
+	questRouter.Use(checkAuthHeader)
 	questRouter.HandleFunc("", h.CreateQuest).Methods("POST")
 	questRouter.HandleFunc("/{id}", h.DeleteQuest).Methods("DELETE")
 	questRouter.HandleFunc("/{id}", h.UpdateQuest).Methods("PUT")
