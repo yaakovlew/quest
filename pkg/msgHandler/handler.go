@@ -41,6 +41,26 @@ func (h *MSGHandler) AnotherMessage(message *tgbotapi.Message) error {
 	return nil
 }
 
+func (h *MSGHandler) KeyBoard(message *tgbotapi.Message) error {
+	btnCatalog1 := tgbotapi.NewKeyboardButton("📚Каталог")
+	btnCatalog2 := tgbotapi.NewKeyboardButton("🛠️Поддержка")
+	btnCatalog3 := tgbotapi.NewKeyboardButton("🆘🤝Помощь")
+	msg := tgbotapi.NewMessage(message.Chat.ID, "Введите имя, телефон и возраст через запятую")
+	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			btnCatalog1,
+			btnCatalog2,
+			btnCatalog3,
+		),
+	)
+
+	if _, err := h.bot.Send(msg); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (h *MSGHandler) Support(message *tgbotapi.Message) error {
 	msgText := os.Getenv("TG_SUPPORT_LYNC")
 	msg := tgbotapi.NewMessage(message.Chat.ID, msgText)
@@ -87,7 +107,16 @@ func (h *MSGHandler) DetailQuestInfo(message *tgbotapi.Message) error {
 
 func (h *MSGHandler) ShowQuestPage(message *tgbotapi.Message, currentPage int) error {
 	page, _ := h.service.GetPageAmount()
+
+	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData("1", "button1"),
+			tgbotapi.NewInlineKeyboardButtonData("Окно 2", "button2"),
+			tgbotapi.NewInlineKeyboardButtonData("Окно 3", "button3"),
+		),
+	)
 	msg := tgbotapi.NewMessage(message.Chat.ID, strconv.Itoa(page))
+	msg.ReplyMarkup = inlineKeyboard
 	if _, err := h.bot.Send(msg); err != nil {
 		return err
 	}

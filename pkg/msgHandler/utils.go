@@ -1,7 +1,6 @@
 package msgHandler
 
 import (
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 )
@@ -22,9 +21,9 @@ func (h *MSGHandler) ValidateMessage() {
 		}
 
 		if update.Message.IsCommand() {
+			h.KeyBoard(update.Message)
 			switch update.Message.Command() {
 			case "start":
-				fmt.Println("start")
 			case "help":
 				h.Help(update.Message)
 			case "support":
@@ -37,7 +36,16 @@ func (h *MSGHandler) ValidateMessage() {
 				h.AnotherMessage(update.Message)
 			}
 		} else {
-			h.AnotherMessage(update.Message)
+			switch update.Message.Text {
+			case "📚Каталог":
+				h.ShowQuestPage(update.Message, 0)
+			case "🛠️Поддержка":
+				h.Support(update.Message)
+			case "🆘🤝Помощь":
+				h.Help(update.Message)
+			default:
+				h.AnotherMessage(update.Message)
+			}
 		}
 
 	}
