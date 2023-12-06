@@ -16,6 +16,7 @@ type Quest interface {
 	DeleteQuest(quest models.RepoQuest) (int, error)
 	GetQuest(questId int) (models.RepoQuest, error)
 	GetQuestsByPage(page int) ([]models.RepoQuest, error)
+	GetPageAmount() (int, error)
 }
 
 type Repository struct {

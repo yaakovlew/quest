@@ -59,3 +59,18 @@ func (r *QuestRepo) GetQuestsByPage(page int) ([]models.RepoQuest, error) {
 
 	return quests, nil
 }
+
+func (r *QuestRepo) GetPageAmount() (int, error) {
+	var amountOfQuests int64
+	if err := r.db.Model(&models.RepoQuest{}).Count(&amountOfQuests).Error; err != nil {
+		return 0, err
+	}
+
+	pages := int(amountOfQuests) / limit
+
+	if amountOfQuests%limit != 0 {
+		pages++
+	}
+
+	return pages, nil
+}

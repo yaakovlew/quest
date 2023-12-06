@@ -20,6 +20,7 @@ type Quest interface {
 	GetQuestsByPage(page int) ([]models.Quest, error)
 	repoQuestToQuest(models.RepoQuest) models.Quest
 	questToRepoQuest(models.Quest) models.RepoQuest
+	GetPageAmount() (int, error)
 }
 
 type Service struct {

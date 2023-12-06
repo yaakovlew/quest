@@ -64,6 +64,10 @@ func (s *QuestService) GetQuestsByPage(page int) ([]models.Quest, error) {
 	return quests, nil
 }
 
+func (s *QuestService) GetPageAmount() (int, error) {
+	return s.repo.GetPageAmount()
+}
+
 func (s *QuestService) repoQuestToQuest(quest models.RepoQuest) models.Quest {
 	return models.Quest{
 		Name:          quest.Name,

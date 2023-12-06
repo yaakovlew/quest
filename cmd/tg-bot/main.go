@@ -5,6 +5,12 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"os/signal"
+	"quest/pkg/models"
+	"quest/pkg/msgHandler"
+	"quest/pkg/repo"
+	"quest/pkg/service"
+	"syscall"
 )
 
 func main() {
@@ -18,24 +24,34 @@ func main() {
 		log.Fatalf("error upload tg token: %s", err.Error())
 		return
 	}
+	bot.Debug = true
 
-	bot.Debug = false
-
-	log.Printf("Authorized on account %s", bot.Self.UserName)
-
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-
-	updates, err := bot.GetUpdatesChan(u)
-
-	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
-
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		bot.Send(msg)
+	db, err := repo.NewPostgresDB(repo.Config{
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		Username: os.Getenv("DB_USERNAME"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   os.Getenv("DB_NAME"),
+		SSLMode:  os.Getenv("DB_SSL_MODE"),
+	})
+	if err != nil {
+		log.Fatalf("Fatal to connect to DB, because: %s", err.Error())
+		return
 	}
+
+	db.AutoMigrate(&models.RepoQuest{}, &models.RepoUser{})
+
+	repos := repo.NewRepository(db)
+	services := service.NewService(repos)
+	handler := msgHandler.NewMSGHandler(services, bot)
+
+	log.Printf("bot started %s", bot.Self.UserName)
+
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
+
+	go handler.ValidateMessage()
+
+	<-signalChannel
+	log.Printf("bot closed %s", bot.Self.UserName)
 }
