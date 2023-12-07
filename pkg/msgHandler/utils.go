@@ -3,6 +3,8 @@ package msgHandler
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
+	"strconv"
+	"strings"
 )
 
 func (h *MSGHandler) ValidateMessage() {
@@ -16,35 +18,54 @@ func (h *MSGHandler) ValidateMessage() {
 	}
 
 	for update := range updates {
+		if update.CallbackQuery != nil {
+			if len(update.CallbackQuery.Data) > 4 {
+				if strings.HasPrefix(update.CallbackQuery.Data, "page") {
+					str := update.CallbackQuery.Data[len("page"):]
+					page, err := strconv.Atoi(str)
+					if err == nil {
+						h.ShowQuestPage(update, page)
+						continue
+					}
+				}
+			}
+			h.AnotherMessage(update)
+			continue
+		}
+
 		if update.Message == nil {
 			continue
 		}
 
 		if update.Message.IsCommand() {
-			h.KeyBoard(update.Message)
+			h.KeyBoard(update)
 			switch update.Message.Command() {
 			case "start":
 			case "help":
-				h.Help(update.Message)
+				h.Help(update)
 			case "support":
-				h.Support(update.Message)
+				h.Support(update)
 			case "catalog":
-				h.ShowQuestPage(update.Message, 0)
-			case "info":
-				h.DetailQuestInfo(update.Message)
+				h.ShowQuestPage(update, 1)
 			default:
-				h.AnotherMessage(update.Message)
+				if len(update.Message.Command()) > 4 {
+					if update.Message.Command()[0:4] == "info" {
+						h.DetailQuestInfo(update)
+						continue
+					}
+				}
+				h.AnotherMessage(update)
 			}
 		} else {
 			switch update.Message.Text {
 			case "📚Каталог":
-				h.ShowQuestPage(update.Message, 0)
+				h.ShowQuestPage(update, 1)
 			case "🛠️Поддержка":
-				h.Support(update.Message)
+				h.Support(update)
 			case "🆘🤝Помощь":
-				h.Help(update.Message)
+				h.Help(update)
 			default:
-				h.AnotherMessage(update.Message)
+				h.AnotherMessage(update)
 			}
 		}
 

@@ -17,7 +17,7 @@ type Quest interface {
 	UpdateQuest(id int, quest models.Quest) (models.Quest, error)
 	DeleteQuest(id int) (int, error)
 	GetQuest(questId int) (models.Quest, error)
-	GetQuestsByPage(page int) ([]models.Quest, error)
+	GetQuestsByPage(page int) ([]models.QuestWithId, error)
 	repoQuestToQuest(models.RepoQuest) models.Quest
 	questToRepoQuest(models.Quest) models.RepoQuest
 	GetPageAmount() (int, error)

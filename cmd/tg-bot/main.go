@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("error upload tg token: %s", err.Error())
 		return
 	}
-	bot.Debug = true
+	//bot.Debug = true
 
 	db, err := repo.NewPostgresDB(repo.Config{
 		Host:     os.Getenv("DB_HOST"),

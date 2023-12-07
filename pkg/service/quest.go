@@ -50,15 +50,15 @@ func (s *QuestService) GetQuest(questId int) (models.Quest, error) {
 	return s.repoQuestToQuest(repoQuest), err
 }
 
-func (s *QuestService) GetQuestsByPage(page int) ([]models.Quest, error) {
+func (s *QuestService) GetQuestsByPage(page int) ([]models.QuestWithId, error) {
 	repoQuests, err := s.repo.GetQuestsByPage(page)
 	if err != nil {
 		return nil, err
 	}
 
-	var quests []models.Quest
+	var quests []models.QuestWithId
 	for _, quest := range repoQuests {
-		quests = append(quests, s.repoQuestToQuest(quest))
+		quests = append(quests, s.repoQuestToQuestWithId(quest))
 	}
 
 	return quests, nil
@@ -70,6 +70,21 @@ func (s *QuestService) GetPageAmount() (int, error) {
 
 func (s *QuestService) repoQuestToQuest(quest models.RepoQuest) models.Quest {
 	return models.Quest{
+		Name:          quest.Name,
+		Description:   quest.Description,
+		AuthorComment: quest.AuthorComment,
+		Point:         quest.Point,
+		AgeLevel:      quest.AgeLevel,
+		Difficult:     quest.Difficult,
+		Duration:      quest.Duration,
+		Location:      quest.Location,
+		Organizer:     quest.Organizer,
+	}
+}
+
+func (s *QuestService) repoQuestToQuestWithId(quest models.RepoQuest) models.QuestWithId {
+	return models.QuestWithId{
+		Id:            int(quest.ID),
 		Name:          quest.Name,
 		Description:   quest.Description,
 		AuthorComment: quest.AuthorComment,

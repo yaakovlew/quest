@@ -26,3 +26,16 @@ type Quest struct {
 	Location      string `json:"location"`
 	Organizer     string `json:"organizer"`
 }
+
+type QuestWithId struct {
+	Id            int    `json:"id"`
+	Name          string `json:"name"`
+	Description   string `json:"description"`
+	AuthorComment string `json:"author_comment"`
+	Point         string `json:"point"`
+	AgeLevel      int    `json:"age_level"`
+	Difficult     string `json:"difficult"`
+	Duration      int    `json:"duration"`
+	Location      string `json:"location"`
+	Organizer     string `json:"organizer"`
+}
