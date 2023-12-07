@@ -7,7 +7,7 @@ import (
 
 type User interface {
 	CreateUser(user models.RepoUser) (int, error)
-	FindUser(tgUserId string) (models.RepoUser, error)
+	FindUser(tgUserId int) (models.RepoUser, error)
 }
 
 type Quest interface {

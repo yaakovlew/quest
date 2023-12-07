@@ -4,6 +4,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"os"
+	"quest/pkg/models"
 	"quest/pkg/service"
 	"strconv"
 	"strings"
@@ -106,10 +107,14 @@ func (h *MSGHandler) DetailQuestInfo(update tgbotapi.Update) error {
 }
 
 func (h *MSGHandler) ShowQuestPage(update tgbotapi.Update, currentPage int) error {
-	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(),
-	)
-	inlineKeyboard.InlineKeyboard[0] = h.leafThroughPage(currentPage)
+	var chatId int64
+	if update.CallbackQuery != nil {
+		chatId = update.CallbackQuery.Message.Chat.ID
+	} else if update.Message != nil {
+		chatId = update.Message.Chat.ID
+	} else {
+		return fmt.Errorf("not found user")
+	}
 
 	quests, err := h.service.GetQuestsByPage(currentPage)
 	if err != nil {
@@ -124,15 +129,20 @@ func (h *MSGHandler) ShowQuestPage(update tgbotapi.Update, currentPage int) erro
 			msgText = msgText + "\n\n"
 		}
 	}
+	if quests == nil {
+		msgText = "Квестов пока нет"
+		msg := tgbotapi.NewMessage(chatId, msgText)
+		if _, err := h.bot.Send(msg); err != nil {
+			return err
+		}
 
-	var chatId int64
-	if update.CallbackQuery != nil {
-		chatId = update.CallbackQuery.Message.Chat.ID
-	} else if update.Message != nil {
-		chatId = update.Message.Chat.ID
-	} else {
-		return fmt.Errorf("not found user")
+		return nil
 	}
+
+	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(),
+	)
+	inlineKeyboard.InlineKeyboard[0] = h.leafThroughPage(currentPage)
 
 	msg := tgbotapi.NewMessage(chatId, msgText)
 	msg.ReplyMarkup = inlineKeyboard
@@ -141,6 +151,80 @@ func (h *MSGHandler) ShowQuestPage(update tgbotapi.Update, currentPage int) erro
 	}
 
 	return nil
+}
+
+func (h *MSGHandler) PersonRegistrate(update tgbotapi.Update) error {
+	msgText := "Введите имя, телефон и возраст через запятую"
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, msgText)
+	if _, err := h.bot.Send(msg); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *MSGHandler) ParseToRegistrate(update tgbotapi.Update) error {
+	user, err := h.validateUser(update)
+	if err != nil {
+		go h.PersonRegistrate(update)
+		return err
+	}
+
+	if _, err := h.service.CreateUser(user); err != nil {
+		go h.PersonRegistrate(update)
+		return err
+	}
+
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Успешно!")
+	if _, err := h.bot.Send(msg); err != nil {
+		go h.PersonRegistrate(update)
+		return err
+	}
+
+	return nil
+}
+
+func (h *MSGHandler) validateUser(update tgbotapi.Update) (models.User, error) {
+	output := strings.ReplaceAll(update.Message.Text, " ", "")
+	str := strings.Split(output, ",")
+	if len(str) != 3 {
+		return models.User{}, fmt.Errorf("not valid message")
+	}
+
+	age, err := strconv.Atoi(str[2])
+	if err != nil {
+		return models.User{}, fmt.Errorf("not valid message: %s", err.Error())
+	}
+
+	if age < 1 || age > 125 {
+		return models.User{}, fmt.Errorf("not valid message")
+	}
+
+	if len(str[0]) < 2 || len(str[0]) > 255 {
+		return models.User{}, fmt.Errorf("not valid message")
+	}
+
+	if len(str[1]) != 12 {
+		return models.User{}, fmt.Errorf("not valid message")
+	}
+
+	if str[1][:2] != "+7" {
+		return models.User{}, fmt.Errorf("not valid message")
+	}
+
+	_, err = strconv.Atoi(str[1][2:])
+	if err != nil {
+		return models.User{}, fmt.Errorf("not valid message: %s", err.Error())
+	}
+
+	user := models.User{
+		TgUserId: int(update.Message.Chat.ID),
+		Name:     str[0],
+		Age:      age,
+		Phone:    str[1],
+	}
+
+	return user, nil
 }
 
 func (h *MSGHandler) leafThroughPage(currentPage int) []tgbotapi.InlineKeyboardButton {

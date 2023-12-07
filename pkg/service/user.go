@@ -20,7 +20,7 @@ func (s *UserService) CreateUser(user models.User) (int, error) {
 	return s.repo.CreateUser(repoUser)
 }
 
-func (s *UserService) FindUser(tgUserId string) (models.User, error) {
+func (s *UserService) FindUser(tgUserId int) (models.User, error) {
 	repoUser, err := s.repo.FindUser(tgUserId)
 	if err != nil {
 		return models.User{}, err

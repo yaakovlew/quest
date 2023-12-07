@@ -11,7 +11,7 @@ services:
     command: ./bot
     restart: always
     ports:
-      - 8000:8000
+      - 8001:8001
     environment:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
@@ -20,7 +20,7 @@ services:
       - DB_NAME=quest_catalog
       - DB_SSL_MODE=disable
     depends_on:
-      - migrate
+      - db
 
   rest:
     networks:
@@ -38,7 +38,7 @@ services:
       - DB_NAME=quest_catalog
       - DB_SSL_MODE=disable
     depends_on:
-      - migrate
+      - db
 
   db:
     image: postgres:latest

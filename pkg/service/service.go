@@ -7,7 +7,7 @@ import (
 
 type User interface {
 	CreateUser(user models.User) (int, error)
-	FindUser(tgUserId string) (models.User, error)
+	FindUser(tgUserId int) (models.User, error)
 	repoUserToUser(user models.RepoUser) models.User
 	userToRepoUser(user models.User) models.RepoUser
 }

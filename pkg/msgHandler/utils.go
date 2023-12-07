@@ -19,17 +19,21 @@ func (h *MSGHandler) ValidateMessage() {
 
 	for update := range updates {
 		if update.CallbackQuery != nil {
+			if !h.IsUserRegistrate(update) {
+				go h.PersonRegistrate(update)
+				continue
+			}
 			if len(update.CallbackQuery.Data) > 4 {
 				if strings.HasPrefix(update.CallbackQuery.Data, "page") {
 					str := update.CallbackQuery.Data[len("page"):]
 					page, err := strconv.Atoi(str)
 					if err == nil {
-						h.ShowQuestPage(update, page)
+						go h.ShowQuestPage(update, page)
 						continue
 					}
 				}
 			}
-			h.AnotherMessage(update)
+			go h.AnotherMessage(update)
 			continue
 		}
 
@@ -38,34 +42,54 @@ func (h *MSGHandler) ValidateMessage() {
 		}
 
 		if update.Message.IsCommand() {
-			h.KeyBoard(update)
+			if !h.IsUserRegistrate(update) {
+				go h.PersonRegistrate(update)
+				continue
+			}
+			go h.KeyBoard(update)
 			switch update.Message.Command() {
 			case "start":
 			case "help":
-				h.Help(update)
+				go h.Help(update)
 			case "support":
-				h.Support(update)
+				go h.Support(update)
 			case "catalog":
-				h.ShowQuestPage(update, 1)
+				go h.ShowQuestPage(update, 1)
 			default:
 				if len(update.Message.Command()) > 4 {
 					if update.Message.Command()[0:4] == "info" {
-						h.DetailQuestInfo(update)
+						go h.DetailQuestInfo(update)
 						continue
 					}
 				}
-				h.AnotherMessage(update)
+				go h.AnotherMessage(update)
 			}
 		} else {
 			switch update.Message.Text {
 			case "📚Каталог":
-				h.ShowQuestPage(update, 1)
+				if !h.IsUserRegistrate(update) {
+					go h.PersonRegistrate(update)
+					continue
+				}
+				go h.ShowQuestPage(update, 1)
 			case "🛠️Поддержка":
-				h.Support(update)
+				if !h.IsUserRegistrate(update) {
+					go h.PersonRegistrate(update)
+					continue
+				}
+				go h.Support(update)
 			case "🆘🤝Помощь":
-				h.Help(update)
+				if !h.IsUserRegistrate(update) {
+					go h.PersonRegistrate(update)
+					continue
+				}
+				go h.Help(update)
 			default:
-				h.AnotherMessage(update)
+				if !h.IsUserRegistrate(update) {
+					go h.ParseToRegistrate(update)
+					continue
+				}
+				go h.AnotherMessage(update)
 			}
 		}
 

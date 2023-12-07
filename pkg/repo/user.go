@@ -16,16 +16,16 @@ func NewUserRepo(db *gorm.DB) *UserRepo {
 }
 
 func (r *UserRepo) CreateUser(user models.RepoUser) (int, error) {
-	if err := r.db.Create(user).Error; err != nil {
+	if err := r.db.Create(&user).Error; err != nil {
 		return 0, err
 	}
 
 	return int(user.ID), nil
 }
 
-func (r *UserRepo) FindUser(tgUserId string) (models.RepoUser, error) {
+func (r *UserRepo) FindUser(tgUserId int) (models.RepoUser, error) {
 	var user models.RepoUser
-	if err := r.db.Where("", tgUserId).First(&user).Error; err != nil {
+	if err := r.db.Where("tg_user_id=?", tgUserId).First(&user).Error; err != nil {
 		return models.RepoUser{}, err
 	}
 
